@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .service-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px;
+            cursor: pointer;
+            width: 150px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .service-box:hover {
+            background-color: #f1f1f1;
+        }
+        .big-box {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            font-size: 24px;
+        }
+        .professional-box {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            text-align: left;
+        }
+        .book-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .book-button:hover {
+            background-color: #45a049;
+        }
+        .service-history {
+            margin-top: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .close-button {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .close-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Welcome to Our Service Portal</h1>
+    <nav>
+        <a href="{{ url_for('Customer_Home_Page') }}" style="color: white; margin-right: 20px;">Home</a>
+        <a href="{{ url_for('Customer_Search') }}" style="color: white; margin-right: 20px;">Search</a>
+        <a href="{{ url_for('Customer_Summary') }}" style="color: white; margin-right: 20px;">Summary</a>
+        <a href="{{ url_for('Customer_Profile') }}" style="color: white; margin-right: 20px;">Profile</a>
+        <a href="{{ url_for('Logout') }}" style="color: white;">Logout</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="big-box">Looking For?</div>
+    <div class="services-container" id="services-container"></div>
+    <div id="professionals-list" style="margin-top: 20px;"></div>
+
+    <div class="service-history">
+        <h3>Service History</h3>
+        <table id="service-history-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Professional Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="service-history-list"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function loadServices() {
+        const servicesContainer = document.getElementById('services-container');
+
+        try {
+            const response = await fetch('/api/services');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const services = await response.json();
+
+            servicesContainer.innerHTML = '';
+
+            services.forEach(service => {
+                const serviceBox = document.createElement('div');
+                serviceBox.className = 'service-box';
+                serviceBox.innerText = service.name;
+                serviceBox.onclick = () => fetchProfessionals(service.name);
+                servicesContainer.appendChild(serviceBox);
+            });
+        } catch (error) {
+            console.error('Error fetching services:', error);
+            servicesContainer.innerHTML = `<p>Error loading services: ${error.message}</p>`;
+        }
+    }
+
+    async function fetchProfessionals(serviceName) {
+        const listContainer = document.getElementById('professionals-list');
+        listContainer.innerHTML = '';
+
+        try {
+            const response = await fetch(`/api/professionals/${serviceName}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const professionals = await response.json();
+
+            const title = document.createElement('h3');
+            title.innerText = `Professionals for ${serviceName}:`;
+            listContainer.appendChild(title);
+
+            if (professionals.length > 0) {
+                professionals.forEach(professional => {
+                    const professionalBox = document.createElement('div');
+                    professionalBox.className = 'professional-box';
+                    professionalBox.innerHTML = `
+                        <strong>Name:</strong> ${professional.full_name}<br>
+                        <strong>Experience:</strong> ${professional.experience} Years<br>
+                        <strong>Description:</strong> ${professional.description}<br>
+                        <strong>Rating:</strong> ${professional.rating} Stars<br>
+                    `;
+
+                    const bookButton = document.createElement('button');
+                    bookButton.className = 'book-button';
+                    bookButton.innerText = 'Book';
+                    bookButton.onclick = () => bookProfessional(professional.professional_id, serviceName);
+                    
+                    professionalBox.appendChild(bookButton);
+                    listContainer.appendChild(professionalBox);
+                });
+            } else {
+                listContainer.innerHTML = `<p>No professionals found for ${serviceName}.</p>`;
+            }
+        } catch (error) {
+            console.error('Error fetching professionals:', error);
+            listContainer.innerHTML = `<p>Error fetching professionals: ${error.message}</p>`;
+        }
+    }
+
+    async function bookProfessional(professionalId, serviceName) {
+        try {
+            const response = await fetch(`/Customer_Book/${professionalId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Booking failed with status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            alert(result.message || 'Booking successful!');
+
+            // Reload Professionals after booking
+            fetchProfessionals(serviceName);
+
+            // Reload service history after booking
+            loadServiceHistory();
+
+        } catch (error) {
+            console.error('Error booking professional:', error);
+            alert(`Error booking professional: ${error.message}`);
+        }
+    }
+
+    async function loadServiceHistory() {
+        const historyContainer = document.getElementById('service-history-list');
+        historyContainer.innerHTML = ''; // Clear any existing content
+
+        try {
+            const response = await fetch('/api/service-history'); // Ensure this endpoint exists
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const services = await response.json();
+
+            // Check if services are returned
+            if (services.length === 0) {
+                historyContainer.innerHTML = `<tr><td colspan="4" style="text-align: center;">No service history found.</td></tr>`;
+                return;
+            }
+
+            services.forEach(service => {
+                const statusText = service.service_status === 0 ? 'Closed' :
+                                   service.service_status === 1 ? 'Requested' :
+                                   `<a href="/Close_Service/${service.id}" class="close-button">Close it?</a>`; // Redirect to Close_Service
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.id}</td>
+                    <td>${service.service_name}</td>
+                    <td>${service.professional_name}</td>
+                    <td>${statusText}</td>
+                `;
+                historyContainer.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading service history:', error);
+            historyContainer.innerHTML = `<tr><td colspan="4" style="text-align: center;">Error loading service history: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Load services and service history on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadServices();
+        loadServiceHistory();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Header Styles */
+        header {
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+    
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+    
+        nav a {
+            color: white; /* Text color */
+            margin-right: 20px;
+            text-decoration: none; /* Remove underlining */
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+    
+        nav a:hover {
+            color: #f1f1f1; /* Change color on hover */
+        }
+    
+        nav a:last-child {
+            margin-right: 0; /* Remove margin from last link */
+        }
+    </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            text-align: center;
+        }
+        canvas {
+            max-width: 100%;
+            height: 400px; /* Set the height of the chart */
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<header>
+    <h1>Welcome to Our Service Portal</h1>
+    <nav>
+        <a href="{{ url_for('Customer_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Customer_Search') }}">Search</a>
+        <a href="{{ url_for('Customer_Summary') }}">Summary</a>
+        <a href="{{ url_for('Customer_Profile') }}">Profile</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+
+<body>
+
+<div class="container">
+    <h2>Customer Summary</h2>
+    <canvas id="summaryChart"></canvas>
+</div>
+
+<script>
+    async function fetchSummary() {
+        try {
+            const response = await fetch('/api/Customer_Summary');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const summary = await response.json();
+            return summary;
+        } catch (error) {
+            console.error('Error fetching customer summary:', error);
+            alert('Error fetching customer summary. Please try again.');
+        }
+    }
+
+    async function createChart() {
+        const summary = await fetchSummary();
+        if (!summary || summary.error) return;
+
+        const data = {
+            labels: ['Assigned', 'Closed', 'Requested'],
+            datasets: [{
+                label: 'Service Status',
+                data: [summary.assigned, summary.closed, summary.requested],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1, // Set the step size to 1 to display only integer values
+                            callback: function(value) {
+                                return Number.isInteger(value) ? value : ''; // Show only integer values
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        const summaryChart = new Chart(
+            document.getElementById('summaryChart'),
+            config
+        );
+    }
+
+    createChart();
+</script>
+
+</body>
+</html>

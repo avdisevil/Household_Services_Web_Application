@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Search</title>
+    <style>
+        /* Header Styles */
+        header {
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+    
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+    
+        nav a {
+            color: white; /* Text color */
+            margin-right: 20px;
+            text-decoration: none; /* Remove underlining */
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+    
+        nav a:hover {
+            color: #f1f1f1; /* Change color on hover */
+        }
+    
+        nav a:last-child {
+            margin-right: 0; /* Remove margin from last link */
+        }
+    </style>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        select, input[type="text"], button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .result-details {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<header>
+    <h1>Welcome to Our Service Portal</h1>
+    <nav>
+        <a href="{{ url_for('Customer_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Customer_Search') }}">Search</a>
+        <a href="{{ url_for('Customer_Summary') }}">Summary</a>
+        <a href="{{ url_for('Customer_Profile') }}">Profile</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+<body>
+
+<div class="container">
+    <h2>Search for a Service</h2>
+    <form id="search-form">
+        <div class="search-box">
+            <select id="search-by" name="search_by">
+                <option value="service_name">Service Name</option>
+                <option value="pincode">Pincode</option>
+                <option value="experience">Experience</option>
+            </select>
+            <input type="text" id="search-text" name="search_text" placeholder="Enter search text" required>
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="results" id="results">
+        <!-- Results will be appended here dynamically -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('search-form').onsubmit = async function(event) {
+        event.preventDefault();
+
+        const searchBy = document.getElementById('search-by').value;
+        const searchText = document.getElementById('search-text').value;
+
+        try {
+            const response = await fetch(`/search?by=${searchBy}&text=${encodeURIComponent(searchText)}`);
+            const results = await response.json();
+
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            results.forEach(service => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+
+                resultItem.innerHTML = `
+                    <div class="result-details">
+                        <span><strong>Professional:</strong> ${service.full_name}</span>
+                        <span><strong>Description:</strong> ${service.description}</span>
+                        <span><strong>Base Price:</strong> ${service.base_price}</span>
+                        <span><strong>Ratings:</strong> ${service.rating}</span>
+                    </div>
+                    <button onclick="bookService(${service.id})">Book</button>
+                `;
+
+                resultsContainer.appendChild(resultItem);
+            });
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+            alert('Error fetching search results. Please try again.');
+        }
+    };
+
+    async function bookService(professionalId) {
+        const response = await fetch(`/Customer_Book/${professionalId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            // If booking is successful, reload the page
+            window.location.reload();
+        } else {
+            const errorData = await response.json();
+            alert(errorData.message);  // Show the error message
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Service Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #4CAF50; /* Green background */
+            color: white;              /* White text */
+            padding: 15px;             /* Add padding around the header */
+            text-align: center;        /* Center-align text */
+        }
+
+        nav a {
+            color: white;              /* White text for links */
+            padding: 14px 20px;        /* Space around the links */
+            text-decoration: none;     /* Remove underline from links */
+            margin: 0 10px;            /* Space between the links */
+            font-size: 16px;           /* Font size for navigation links */
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Darken background on hover */
+            border-radius: 5px;         /* Add border radius on hover */
+        }
+
+        /* Responsive Layout for Charts */
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 30px;
+        }
+
+        .chart-box {
+            width: 45%; /* Adjust the width of each chart container */
+            min-width: 350px; /* Prevent charts from being too small */
+            max-width: 550px;
+            margin-bottom: 30px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+    </style>
+    
+</head>
+
+<header>
+    <h1 style = 'color:#f4f4f4'>Admin Dashboard</h1>
+    <nav>
+        <a href="{{ url_for('Admin_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Admin_Search') }}">Search</a>
+        <a href="{{ url_for('Admin_Summary') }}">Summary</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+
+<body>
+
+<div class="container">
+    <h1>Admin Service Request Summary</h1>
+    <div class="chart-container">
+        <div class="chart-box">
+            <div class="chart-title">Service Request Status</div>
+            <canvas id="serviceStatusChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">Customer Ratings Distribution</div>
+            <canvas id="customerRatingsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchSummaryData() {
+        try {
+            const response = await fetch('/api/admin_summary');
+            if (!response.ok) {
+                throw new Error('Failed to fetch summary data');
+            }
+            const data = await response.json();
+            displayServiceStatusChart(data.service_status_summary);
+            displayCustomerRatingsChart(data.rating_summary);
+        } catch (error) {
+            console.error('Error fetching summary data:', error);
+        }
+    }
+
+    function displayServiceStatusChart(serviceStatusData) {
+        const ctx = document.getElementById('serviceStatusChart').getContext('2d');
+        const chartData = {
+            labels: ['Closed', 'Requested', 'Accepted'],
+            datasets: [{
+                label: 'Number of Service Requests',
+                data: [
+                    serviceStatusData.Closed || 0,
+                    serviceStatusData.Requested || 0,
+                    serviceStatusData.Accepted || 0
+                ],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                borderColor: ['#218838', '#e0a800', '#c82333'],
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 10 },
+                        title: {
+                            display: true,
+                            text: 'Number of Requests'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Service Status'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + ' requests';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function displayCustomerRatingsChart(ratingData) {
+        const ctx = document.getElementById('customerRatingsChart').getContext('2d');
+        const chartData = {
+            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+            datasets: [{
+                label: 'Customer Ratings Distribution',
+                data: [
+                    ratingData['1'] || 0,
+                    ratingData['2'] || 0,
+                    ratingData['3'] || 0,
+                    ratingData['4'] || 0,
+                    ratingData['5'] || 0
+                ],
+                backgroundColor: ['#ff5733', '#ffbd33', '#ffd633', '#75d633', '#33ff7f'],
+                borderColor: ['#c92f00', '#c79200', '#c7b200', '#5eab00', '#2dbf42'],
+                borderWidth: 1
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + ' reviews';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    window.onload = fetchSummaryData;
+</script>
+
+</body>
+</html>

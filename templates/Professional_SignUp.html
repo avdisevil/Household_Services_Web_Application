@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Registration</title>
+    <style>
+        /* Reset styles for better cross-browser consistency */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Ensuring body covers full height of screen */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;  /* Ensure body covers the entire screen */
+            margin: 0;
+        }
+
+        .registration-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;  /* Limit the width */
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+
+        input[type="email"], input[type="password"], input[type="text"], select, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #1e7e34;
+            transform: translateY(0);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .form-footer a {
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments for mobile devices */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 20px; /* Add padding for small screens */
+            }
+
+            .registration-container {
+                padding: 20px;
+                margin-top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="registration-container">
+        <h2>Professional Registration</h2>
+        <form action="/Professional_SignUp" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" name="email_id" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <label for="fullname">Full Name:</label>
+                <input type="text" id="fullname" name="full_name" required>
+            </div>
+            <div>
+                <label for="service">Service Name:</label>
+                <select id="service" name="service_name" required>
+                    {% for service in services %}
+                        <option value="{{ service.name }}">{{ service.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="experience">Experience:</label>
+                <input type="text" id="experience" name="experience" required>
+            </div>
+            <div>
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
+            </div>
+            <div>
+                <label for="pincode">Pincode:</label>
+                <input type="text" id="pincode" name="pincode" required>
+            </div>
+            <div>
+                <label for="document">Upload Document (PDF):</label>
+                <input type="file" id="document" name="document" accept="application/pdf" required>
+            </div>
+            <div>
+                <label for="description">Service Description:</label>
+                <input type="text" id="description" name="description" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="form-footer">
+            <p>Already have an account? <a href="/Professional_Login">Login here</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

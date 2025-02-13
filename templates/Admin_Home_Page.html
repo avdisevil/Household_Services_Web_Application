@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Home Page</title>
+    <style>
+        .summary-section {
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .error {
+            color: red;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .item-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .details {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .approve-button {
+            background-color: #28a745;
+        }
+
+        .approve-button:hover {
+            background-color: #218838;
+        }
+
+        .reject-button {
+            background-color: #ffc107;
+        }
+
+        .reject-button:hover {
+            background-color: #e0a800;
+        }
+
+        /* New Header Styles */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<header>
+    <h1 style = 'color:#f0f0f0'>Admin Dashboard</h1>
+    <nav>
+        <a href="{{ url_for('Admin_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Admin_Search') }}">Search</a>
+        <a href="{{ url_for('Admin_Summary') }}">Summary</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+
+<div class="container">
+    <h1>Admin Home Page</h1>
+
+    <!-- Services Section -->
+    <h2>Services</h2>
+    <div class="button-container">
+        <a href="{{ url_for('Add_Service') }}" class="button">Add New Service</a>
+    </div>
+
+    <ul class="item-list">
+        {% for service in services %}
+            <li class="item" onclick="toggleDetails('service-{{ service['id'] }}')">
+                <strong>ID:</strong> {{ service['id'] }} - <strong>Name:</strong> {{ service['name'] }}
+            </li>
+            <div id="details-service-{{ service['id'] }}" class="details">
+                <p><strong>Price:</strong> ₹{{ service['price'] }}</p>
+                <p><strong>Time Required:</strong> {{ service['time_required'] }} hours</p>
+                <p><strong>Description:</strong> {{ service['description'] }}</p>
+                <div class="button-container">
+                    <a href="{{ url_for('Edit_Service', id=service['id']) }}" class="button">Edit</a>
+                    <form action="{{ url_for('Delete_Service', id=service['id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button delete-button" onclick="return confirm('Are you sure you want to delete this service?');">Delete</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <li>No services available.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Professionals Section -->
+    <h2>Professionals</h2>
+
+    <ul class="item-list">
+        {% for professional in professionals %}
+            <li class="item" onclick="toggleDetails('professional-{{ professional['professional_id'] }}')">
+                <strong>ID:</strong> {{ professional['professional_id'] }} - <strong>Name:</strong> {{ professional['full_name'] }}
+            </li>
+            <div id="details-professional-{{ professional['professional_id'] }}" class="details">
+                <p><strong>Email:</strong> {{ professional['email_id'] }}</p>
+                <p><strong>Service:</strong> {{ professional['service_name'] }}</p>
+                <p><strong>Experience:</strong> {{ professional['experience'] }} years</p>
+                <p><strong>Rating:</strong> {{ professional['rating'] }} stars</p>
+                <p><strong>Address:</strong> {{ professional['address'] }}</p>
+                <p><strong>Pin Code:</strong> {{ professional['pin_code'] }}</p>
+                <p><strong>Service Description:</strong> {{ professional['description'] }}</p>
+                <p><strong>Approval Status:</strong> {{ 'Approved' if professional['approve'] == 1 else 'Pending' }}</p>
+                
+                <!-- Link to PDF Document -->
+                {% if professional['document'] %}
+                    <p>
+                        <strong>Document:</strong> 
+                        <a href="{{ url_for('Download_Document', professional_id=professional['professional_id']) }}" class="button">Download PDF</a>
+                    </p>
+                {% else %}
+                    <p><strong>No document available.</strong></p>
+                {% endif %}
+
+                <div class="button-container">
+                    <form action="{{ url_for('Approve_Professional', id=professional['professional_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button approve-button">Approve</button>
+                    </form>
+                    <form action="{{ url_for('Reject_Professional', id=professional['professional_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button reject-button">Reject</button>
+                    </form>
+                    <form action="{{ url_for('Delete_Professional', id=professional['professional_id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="button delete-button" onclick="return confirm('Are you sure you want to delete this professional?');">Delete</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <li>No professionals available.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Service Summary Section -->
+    <h2>Service Summary</h2>
+    <div id="service-summary" class="summary-section">
+        <p class="loading">Loading service summary...</p>
+    </div>
+</div>
+
+<script>
+    function toggleDetails(itemId) {
+        const detailsElement = document.getElementById('details-' + itemId);
+        if (detailsElement.style.display === 'none' || detailsElement.style.display === '') {
+            detailsElement.style.display = 'block';
+        } else {
+            detailsElement.style.display = 'none';
+        }
+    }
+
+    // Function to fetch data from the ServiceSummaryAPI
+    async function fetchServiceSummary() {
+        try {
+            const response = await fetch('/api/Service_Summary');
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            const data = await response.json();
+            renderServiceSummary(data);
+        } catch (error) {
+            document.getElementById('service-summary').innerHTML = `<p class="error">Failed to load service summary: ${error.message}</p>`;
+        }
+    }
+
+    // Function to render the service summary dynamically in tabular format
+    function renderServiceSummary(serviceSummary) {
+        const container = document.getElementById('service-summary');
+        container.innerHTML = ''; // Clear loading message or old data
+
+        if (serviceSummary.length === 0) {
+            container.innerHTML = '<p>No service summaries available.</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        // Create table header
+        thead.innerHTML = `
+            <tr>
+                <th>Service ID</th>
+                <th>Professional Assigned</th>
+                <th>Requested Date</th>
+                <th>Customer Name</th>
+                <th>Status</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        // Create table body with data
+        serviceSummary.forEach(service => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${service.ID}</td>
+                <td>${service['Professional Name'] || 'N/A'}</td>
+                <td>${service['Requested Date']}</td>
+                <td>${service['Customer Name']}</td>
+                <td>${service['Status']}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // Call the fetch function when the page loads
+    fetchServiceSummary();
+</script>
+
+</body>
+</html>

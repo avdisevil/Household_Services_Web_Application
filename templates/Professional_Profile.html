@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Profile</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+
+        /* Container Styles */
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        /* Profile Information Styles */
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+        }
+
+        .profile-info strong {
+            text-transform: capitalize;
+        }
+
+        /* Error Message Styles */
+        .error {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Button Styles */
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<header>
+    <h1 style = "color:#f4f4f4">Professional Dashboard</h1>
+    <nav>
+        <a href="{{ url_for('Professional_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Professional_Search') }}">Search</a>
+        <a href="{{ url_for('Professional_Summary') }}">Summary</a>
+        <a href="{{ url_for('Professional_Profile') }}">Profile</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+
+<body>
+
+<div class="container">
+    <h1>Professional Profile</h1>
+
+    {% if professional %}
+        <div class="profile-info">
+            <p><strong>Professional ID:</strong> {{ professional.professional_id }}</p>
+            <p><strong>Email ID:</strong> {{ professional.email_id }}</p>
+            <p><strong>Full Name:</strong> {{ professional.full_name }}</p>
+            <p><strong>Address:</strong> {{ professional.address }}</p>
+            <p><strong>Pin Code:</strong> {{ professional.pin_code }}</p>
+            <p><strong>Experience:</strong> {{ professional.experience }}</p>
+            <p><strong>Description:</strong> {{ professional.description }}</p>
+            <p><strong>Rating:</strong> {{ professional.rating }}</p>
+        </div>
+
+        <div class="button-container">
+            <a href="{{ url_for('Professional_Edit_Profile') }}" class="button">Edit Profile</a>
+        </div>
+    {% else %}
+        <p class="error">Professional information not found.</p>
+    {% endif %}
+
+
+</div>
+
+</body>
+</html>

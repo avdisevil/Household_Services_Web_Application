@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Search for Professionals</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h2 {
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        select, input[type="text"], button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .result-details {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+    </style>
+    <style>
+        /* Header Styles */
+        header {
+            background-color: #4CAF50; /* Green background */
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+    
+        nav a {
+            color: white; /* Text color */
+            padding: 14px 20px;
+            text-decoration: none; /* Remove underlining */
+            margin: 0 10px;
+            font-size: 16px;
+            transition: background-color 0.3s ease; /* Smooth background color transition */
+        }
+    
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Light hover effect */
+        }
+    </style>
+</head>
+<header>
+    <h1>Professional Dashboard</h1>
+    <nav>
+        <a href="{{ url_for('Professional_Home_Page') }}">Home</a>
+        <a href="{{ url_for('Professional_Search') }}">Search</a>
+        <a href="{{ url_for('Professional_Summary') }}">Summary</a>
+        <a href="{{ url_for('Professional_Profile') }}">Profile</a>
+        <a href="{{ url_for('Logout') }}">Logout</a>
+    </nav>
+</header>
+<body>
+
+<div class="container">
+    <h2>Search for a Specific Service</h2>
+    <form id="search-form">
+        <div class="search-box">
+            <select id="search-by" name="search_by">
+                <option value="address">Address</option>
+                <option value="pincode">Pincode</option>
+                <option value="date_of_completion">Date of Completion</option>
+            </select>
+            <input type="text" id="search-text" name="search_text" placeholder="Enter search text" required>
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="results" id="results">
+        <!-- Results will be appended here dynamically -->
+    </div>
+</div>
+
+<script>
+    document.getElementById('search-form').onsubmit = async function(event) {
+        event.preventDefault();
+
+        const searchBy = document.getElementById('search-by').value;
+        const searchText = document.getElementById('search-text').value;
+
+        try {
+            const response = await fetch(`/api/Professional_Service_Search?by=${searchBy}&text=${encodeURIComponent(searchText)}`);
+            const results = await response.json();
+
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            results.forEach(service => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+
+                // Use conditional (ternary) operators to handle null or undefined values
+                const dateOfCompletion = service.date_of_completion != "None" ? service.date_of_completion : "On-going";
+                const rating = service.rating != null ? service.rating : "-"; // Checks for both null and undefined
+
+                resultItem.innerHTML = `
+                    <div class="result-details">
+                        <span><strong>ID:</strong> ${service.id}</span>
+                        <span><strong>Customer Name:</strong> ${service.customer_name}</span>
+                        <span><strong>Location:</strong> ${service.address} - ${service.pincode}</span>
+                        <span><strong>Date of Completion:</strong> ${dateOfCompletion}</span>
+                        <span><strong>Rating:</strong> ${rating}</span>
+                    </div>
+                `;
+
+        resultsContainer.appendChild(resultItem);
+            });
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+            alert('Error fetching search results. Please try again.');
+        }
+    };
+</script>
+</body>
+</html>
