@@ -1,4 +1,5 @@
 Introduction
+
 The Household Services web application is designed to facilitate seamless interaction and exchange between customers and professionals, with an administrator overseeing the entire process. It supports various tasks, including service booking, customer and professional management, and data visualization. The project is built using:
 
 Backend: Flask framework
