@@ -1,4 +1,3 @@
-
 # 🏠 Household Services Web Application
 
 Welcome to the **Household Services Web Application**! This platform connects customers with skilled professionals for household services, all managed by a powerful admin dashboard. Built with Flask, SQLAlchemy, and a modern HTML/CSS frontend, this project is your one-stop solution for seamless service management.
@@ -56,6 +55,14 @@ Visit [http://localhost:8080](http://localhost:8080) in your browser.
 - **Search:** Find professionals by service, pincode, or experience.
 - **Profile:** Edit your personal details.
 - **Summary:** See charts of your service activity.
+
+---
+
+# Entity-Relationship Diagram
+
+Below is the ER diagram representing the database structure for this project:
+
+![ER Diagram](ERDiagram.png)
 
 ---
 
