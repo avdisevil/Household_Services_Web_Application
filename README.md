@@ -8,7 +8,7 @@ Welcome to the **Household Services Web Application**! This platform connects cu
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/Household_Services_Web_Application.git
+git clone https://github.com/avdisevil/Household_Services_Web_Application.git
 cd Household_Services_Web_Application
 ```
 
